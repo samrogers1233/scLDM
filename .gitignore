@@ -1,6 +1,5 @@
 # Python
 __pycache__/
-*.py[cod]
 *$py.class
 *.so
 
@@ -31,13 +30,14 @@ temp*/
 outputs/
 duodiffusion/
 figures/
-gene2vec/
+gene2vec/*
 !gene2vec/.gitkeep
 paired_RNA_ATAC/
 script/train_ae/
 zzz/
 scduo_perturbation/ae/
 scduo_perturbation/condebed/
+
 
 
 
