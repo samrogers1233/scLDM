@@ -1,0 +1,3 @@
+batch_size: 256
+chekpoint_path: /home/wuboyang/scduo-new/script/training_vae/outputs/checkpoints
+use_early_stopping: True

@@ -1,0 +1,61 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Data files (adjust as needed)
+*.h5ad
+*.npz
+*.npy
+dataset/
+temp*/
+outputs/
+duodiffusion/
+figures/
+gene2vec/
+!gene2vec/.gitkeep
+paired_RNA_ATAC/
+script/train_ae/
+zzz/
+scduo_perturbation/ae/
+scduo_perturbation/condebed/
+
+
+
+# Logs
+*.log
+logs/
+
+# Environment
+.env
+venv/
+env/
+.conda/
+
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

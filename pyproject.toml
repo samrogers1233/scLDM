@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "scduo-perturbation"
+version = "0.1.0"
+description = "AE + diffusion for ctrl→pert single-cell modeling"
+readme = "README.md"
+requires-python = ">=3.10"
+# 依赖可按需精简
+dependencies = [
+  "torch>=2.1",
+  "numpy",
+  "pandas",
+  "scipy",
+  "scanpy>=1.9.8",
+  "anndata>=0.9",
+  "episcanpy",
+  "matplotlib"
+]
+
+[tool.setuptools]
+# 从哪个目录找包：这里从 scduo/ 底下找
+package-dir = {"" = "."}
+
+[tool.setuptools.packages.find]
+where = ["scduo"]
