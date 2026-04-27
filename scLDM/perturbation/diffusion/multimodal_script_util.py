@@ -48,6 +48,7 @@ def model_defaults():
         resblock_updown=False,
         use_fp16=False,
         num_class=None,
+        use_gene_cond=False,
     )
     return res
 
@@ -83,6 +84,7 @@ def create_model_and_diffusion(
     use_fp16,
     class_cond=False,
     num_class=None,
+    use_gene_cond=False,
 ):
     model = create_model(
         ctrl_dim=ctrl_dim,
@@ -104,7 +106,7 @@ def create_model_and_diffusion(
         resblock_updown=resblock_updown,
         use_fp16=use_fp16,
         num_class=num_class,
-       
+        use_gene_cond=use_gene_cond,
     )
     diffusion = create_gaussian_diffusion(
         steps=diffusion_steps,
@@ -139,9 +141,10 @@ def create_model(
     use_fp16=False,
     resblock_updown=True,
     num_class=None,
+    use_gene_cond=False,
 ):
-    
-    image_size = ctrl_dim[-1] 
+
+    image_size = ctrl_dim[-1]
     channel_mult = (4, 2, 1)
 
     cross_attention_resolutions = [int(i) for i in cross_attention_resolutions.split(',')]
@@ -168,6 +171,7 @@ def create_model(
         num_heads_upsample=num_heads_upsample,
         use_scale_shift_norm=use_scale_shift_norm,
         resblock_updown=resblock_updown,
+        use_gene_cond=use_gene_cond,
     )
 
 

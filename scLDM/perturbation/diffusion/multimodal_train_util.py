@@ -21,7 +21,6 @@ from .resample import LossAwareSampler, UniformSampler
 from .multimodal_dpm_solver_plus import DPM_Solver
 from .common import save_one_video
 
-#单gpu
 def get_world_size():
     import torch.distributed as dist
     if not dist.is_available() or not dist.is_initialized():
@@ -89,12 +88,11 @@ class TrainLoop:
         self.step = 1
         self.resume_step = 0
         # self.global_batch = self.batch_size * dist.get_world_size()
-        self.global_batch = self.batch_size * get_world_size()  #单gpu
+        self.global_batch = self.batch_size * get_world_size()
         self.video_fps = video_fps
         self.audio_fps = audio_fps
         self.use_db = use_db
         #if self.use_db ==True and dist.get_rank()==0:
-        #单gpu
         if self.use_db and (not dist.is_available() or not dist.is_initialized() or dist.get_rank() == 0):
             wandb.login(key="<use_your_own_wandb_key>")
             wandb.init(
@@ -160,7 +158,7 @@ class TrainLoop:
                     find_unused_parameters=False,
                 )
             else:
-                self.ddp_model = self.model  # 单GPU模式下不需要DDP
+                self.ddp_model = self.model
 
             print("******DDP sync model done...")
            
@@ -207,7 +205,6 @@ class TrainLoop:
         if resume_checkpoint:
             self.resume_step = parse_resume_step_from_filename(resume_checkpoint)
             # if self.resume_step > 0 and dist.get_rank()==0:
-            #单gpu
             if not dist.is_available() or not dist.is_initialized() or dist.get_rank() == 0:
                 logger.log(f"continue training from step {self.resume_step}")
             #if dist.get_rank() == 0:
@@ -218,7 +215,6 @@ class TrainLoop:
             self.model.load_state_dict_(
                 state_dict
                 )
-        #单gpu
         if dist.is_available() and dist.is_initialized():
             dist_util.sync_params(self.model.parameters()) 
         
@@ -229,7 +225,6 @@ class TrainLoop:
         ema_checkpoint = find_ema_checkpoint(main_checkpoint, self.resume_step, rate)
 
         if ema_checkpoint:
-            #单gpu
             if not dist.is_available() or not dist.is_initialized() or dist.get_rank() == 0:
                 logger.log(f"loading EMA from checkpoint: {ema_checkpoint}...")
             state_dict = dist_util.load_state_dict(
@@ -237,7 +232,6 @@ class TrainLoop:
             )
             ema_params = self.mp_trainer.state_dict_to_master_params(state_dict)
 
-        #单gpu
         if dist.is_available() and dist.is_initialized():
             dist_util.sync_params(ema_params)
         return ema_params
@@ -270,14 +264,12 @@ class TrainLoop:
                                         "audio_gene_cond": batch["audio_gene_cond"]})
            
             # if dist.get_rank() == 0 and self.use_db:
-            #单gpu
             if dist_util.is_main_process() and self.use_db:
                 wandb_log = { 'loss': loss["loss"].mean().item()}
                 
             if self.step % self.log_interval == 0:
                 log = logger.get_current()
                 # if dist.get_rank() == 0 and self.use_db:
-                #单gpu
                 if dist_util.is_main_process() and self.use_db:
                     wandb_log.update({'grad_norm':log.name2val["grad_norm"], 'loss_q0':log.name2val["loss_q0"], \
                         'v_grad':log.name2val["grad_norm_v"], 'a_grad':log.name2val["grad_norm_a"]})
@@ -288,7 +280,6 @@ class TrainLoop:
                 self.save()
 
             # if dist.get_rank() == 0 and self.use_db:
-            #单gpu
             if dist_util.is_main_process() and self.use_db:
                 wandb.log(wandb_log)
             self.step += 1
@@ -381,7 +372,6 @@ class TrainLoop:
         def save_checkpoint(rate, params):
             state_dict = self.mp_trainer.master_params_to_state_dict(params)
             # if dist.get_rank() == 0:
-            #单gpu
             if not dist.is_available() or not dist.is_initialized() or dist.get_rank() == 0:
                 logger.log(f"saving model {rate}...")
                 if not rate:
@@ -396,7 +386,6 @@ class TrainLoop:
             save_checkpoint(rate, params)
 
         #if dist.get_rank() == 0:
-        #单gpu
         if not dist.is_available() or not dist.is_initialized() or dist.get_rank() == 0:
             with bf.BlobFile(
                 bf.join(get_blob_logdir(), f"opt{(self.step+self.resume_step):06d}.pt"),

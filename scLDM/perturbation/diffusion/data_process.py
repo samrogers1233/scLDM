@@ -40,7 +40,7 @@ def load_data_cell(
     condition='cell_type',
     encoder_config='default',
     dev="cuda:0",
-    gene2vec_path="/home/wuboyang/scduo-new/gene2vec/pre_trained_emb/gene2vec_dim_200_iter_9_w2v.txt",
+    gene2vec_path="path/to/gene2vec.txt",
     perturbation_key="condition",
 ):
     if not data_dir:
@@ -85,7 +85,7 @@ class MultimodalDataset_cell(Dataset):
         condition_key="cp_type",
         control_value="control",
         perturbed_value="stimulated",
-        gene2vec_path="/home/wuboyang/scduo-new/gene2vec/pre_trained_emb/gene2vec_dim_200_iter_9_w2v.txt",
+        gene2vec_path="path/to/gene2vec.txt",
         perturbation_key="condition",
     ):
         super().__init__()
@@ -128,7 +128,6 @@ class MultimodalDataset_cell(Dataset):
                 if g in gene2idx:
                     vectors.append(embs[gene2idx[g]])
                 else:
-                    # 缺失时给 0；也可以改成小随机噪声
                     vectors.append(np.zeros(dim, dtype=np.float32))
                     missing.append(g)
             elif n == 2:
@@ -205,7 +204,7 @@ class MultimodalDataset_cell(Dataset):
 
             ctrl_X = torch.tensor(ctrl_X, dtype=encoder_model.dtype, device=encoder_model.device)
 
-            from scduo.scduo_perturbation.vae.data.utils import normalize_expression
+            from scLDM.perturbation.vae.data.utils import normalize_expression
             ctrl_X_norm = normalize_expression(ctrl_X, ctrl_X.sum(), encoder_type='learnt_autoencoder')
 
             with torch.no_grad():

@@ -1,4 +1,4 @@
-#scduo
+#scLDM
 import numpy as np
 import scanpy as sc
 import torch
@@ -7,7 +7,7 @@ from scipy.sparse import csr_matrix
 import scipy.sparse as sp
 from scipy.sparse import issparse
 
-#需要提前对数据进行预处理来保证扰动前后数据长度一致
+# Requires upstream preprocessing so that ctrl and pert have matching sample counts.
 class RNAseqLoader:
     """Loader for paired control and perturbed scRNA-seq data from a single .h5ad file."""
 
@@ -75,7 +75,7 @@ class RNAseqLoader:
 
 
     def __len__(self):
-        return len(self.X)  # 假设你已保证 ctrl 和 pert 样本数一致
+        return len(self.X)  # assumes ctrl and pert have equal sample counts
 
 
 

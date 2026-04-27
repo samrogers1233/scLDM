@@ -4,17 +4,17 @@ Train a diffusion model on audio-video pairs.
 import sys,os
 sys.path.append(os.path.dirname (os.path.dirname (os.path.abspath (__file__))))
 import argparse
-from scduo.scduo_perturbation.diffusion import dist_util, logger
-from scduo.scduo_perturbation.diffusion.multimodal_datasets import load_data_cell
-from scduo.scduo_perturbation.diffusion.resample import create_named_schedule_sampler
-from scduo.scduo_perturbation.diffusion.multimodal_script_util import (
+from scLDM.perturbation.diffusion import dist_util, logger
+from scLDM.perturbation.diffusion.gene_perturbation_datasets import load_data_cell
+from scLDM.perturbation.diffusion.resample import create_named_schedule_sampler
+from scLDM.perturbation.diffusion.multimodal_script_util import (
     model_and_diffusion_defaults,
     create_model_and_diffusion,
     args_to_dict,
     add_dict_to_argparser
 )
-from scduo.scduo_perturbation.diffusion.multimodal_train_util import TrainLoop
-from scduo.scduo_perturbation.diffusion.common import set_seed_logger_random
+from scLDM.perturbation.diffusion.multimodal_train_util import TrainLoop
+from scLDM.perturbation.diffusion.common import set_seed_logger_random
 import torch
 
 

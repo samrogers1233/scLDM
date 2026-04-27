@@ -32,11 +32,12 @@ duodiffusion/
 figures/
 gene2vec/*
 !gene2vec/.gitkeep
+!gene2vec/README.md
 paired_RNA_ATAC/
 script/train_ae/
 zzz/
-scduo_perturbation/ae/
-scduo_perturbation/condebed/
+perturbation/ae/
+perturbation/condebed/
 
 
 

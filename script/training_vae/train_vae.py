@@ -1,7 +1,7 @@
 import hydra
 import sys
 from omegaconf import DictConfig
-from scduo.scduo_perturbation.vae.estimator.vae_estimator import EncoderEstimator
+from scLDM.perturbation.vae.estimator.vae_estimator import EncoderEstimator
 
 @hydra.main(config_path="configs", config_name="train", version_base=None)
 def train(cfg: DictConfig):

@@ -9,7 +9,7 @@
 #SBATCH --error=logs/%x_%j.err
 
 source ~/miniconda3/etc/profile.d/conda.sh
-conda activate scduo_new
+conda activate scLDM
 export PYTHONNOUSERSITE=1
 
 

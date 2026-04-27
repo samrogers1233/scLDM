@@ -95,7 +95,6 @@
 
 
 
-#单gpu
 import io
 import os
 import socket
@@ -185,11 +184,9 @@ def load_state_dict(path, **kwargs):
 #         with th.no_grad():
 #             dist.broadcast(p, 0)
 
-#单gpu   
 def sync_params(params):
     import torch.distributed as dist
     if not dist.is_available() or not dist.is_initialized():
-        # 单机或单GPU，无需同步
         return
     for p in params:
         with th.no_grad():

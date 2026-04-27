@@ -121,7 +121,6 @@ class GaussianDiffusion:
             / (1.0 - self.alphas_cumprod)
         )
 
-    #返回从 干净数据 x_0 通过扩散过程得到 第 t 步 x_t 的 均值和方差
     def q_mean_variance(self, x_start, t):
         mean = (
             _extract_into_tensor(self.sqrt_alphas_cumprod, t, x_start.shape) * x_start
@@ -131,7 +130,6 @@ class GaussianDiffusion:
             self.log_one_minus_alphas_cumprod, t, x_start.shape
         )
         return mean, variance, log_variance
-    #前向扩散，即从 x_0 和噪声 ε 得到某个时间步的 x_t
     def q_sample(self, x_start, t, noise=None):
         if noise is None:
             noise = th.randn_like(x_start)
@@ -142,7 +140,6 @@ class GaussianDiffusion:
             * noise
         )
 
-    #在反向过程中逐步从 x_t 恢复出 x_{t-1} 的分布：q(x_{t-1} | x_t, x_0)
     def q_posterior_mean_variance(self, x_start, x_t, t):
         posterior_mean = (
             _extract_into_tensor(self.posterior_mean_coef1, t, x_t.shape) * x_start
@@ -280,7 +277,6 @@ class GaussianDiffusion:
             return t.float() * (1000.0 / self.num_timesteps)
         return t
     
-    #梯度调整函数--条件生成
     def condition_mean(self, cond_fn, p_mean_var, x, t, model_kwargs=None):
         gradient = cond_fn(x, self._scale_timesteps(t), **model_kwargs)
         new_mean = (
@@ -302,7 +298,6 @@ class GaussianDiffusion:
         )
         return out
 
-    #一步的反向扩散过程
     def p_sample(
         self,
         model,
@@ -340,7 +335,6 @@ class GaussianDiffusion:
             "pred_start": {"audio": out["pred_xstart"]["audio"]},
             "pred_noise":{"audio": out["model_predict"]["audio"]}}
 
-    #完整的多步采样
     def p_sample_loop(
         self,
         model,
@@ -369,7 +363,6 @@ class GaussianDiffusion:
             final = sample
         return final
 
-    #逐步采样，返回每一步的结果
     def p_sample_loop_progressive(
         self,
         model,

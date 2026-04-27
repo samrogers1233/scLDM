@@ -54,7 +54,6 @@ def set_seed_logger(args):
     th.backends.cudnn.deterministic = True
     
     #if dist.get_rank() == 0:
-    #单gpu
     if not dist.is_available() or not dist.is_initialized() or dist.get_rank() == 0:
         logger.log("Effective parameters:")
         for key in sorted(args.__dict__):

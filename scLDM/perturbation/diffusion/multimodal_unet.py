@@ -415,6 +415,7 @@ class MultimodalUNet(nn.Module):
         use_scale_shift_norm=False,
         resblock_updown=True,
         specific_type=None,
+        use_gene_cond=False,
     ):
         super().__init__()
 
@@ -423,7 +424,8 @@ class MultimodalUNet(nn.Module):
 
         self.ctrl_dim = ctrl_dim.copy()    #(1,100)
         self.pert_dim = pert_dim.copy()    #(1,100)
-        self.specific_type = specific_type   
+        self.specific_type = specific_type
+        self.use_gene_cond = use_gene_cond
 
         self.model_channels = model_channels   #128
         self.video_out_channels = video_out_channels   #100
@@ -440,20 +442,16 @@ class MultimodalUNet(nn.Module):
         self.num_heads = num_heads
         self.num_head_channels = num_head_channels
         self.num_heads_upsample = num_heads_upsample
-        #时间步嵌入维度
         time_embed_dim = model_channels
-        #时间步嵌入网络
         self.time_embed = nn.Sequential(
             linear(model_channels, time_embed_dim),
             nn.SiLU(),
             linear(time_embed_dim, time_embed_dim),
         )
-        #细胞类型嵌入表
         if self.num_classes is not None:
             self.label_emb = nn.Embedding(self.num_classes, time_embed_dim)
-        ch = input_ch = int(channel_mult[0] * model_channels)   #512
+        ch = input_ch = int(channel_mult[0] * model_channels)   
 
-        #数据嵌入
         cond_video_dim = ctrl_dim[-1] 
         cond_audio_dim = pert_dim[-1]
         self.audio_cond_layers = nn.Sequential(
@@ -462,13 +460,13 @@ class MultimodalUNet(nn.Module):
             nn.Linear(model_channels, model_channels),
         )
 
-        #基因扰动类型嵌入
-        gene_emb_dim = 200
-        self.audio_gene_layers = nn.Sequential(
-            nn.Linear(gene_emb_dim, model_channels),
-            nn.SiLU(),
-            nn.Linear(model_channels, model_channels),
-        )
+        if self.use_gene_cond:
+            gene_emb_dim = 200
+            self.audio_gene_layers = nn.Sequential(
+                nn.Linear(gene_emb_dim, model_channels),
+                nn.SiLU(),
+                nn.Linear(model_channels, model_channels),
+            )
         
         self._feature_size = ch   #512
         input_block_chans = [ch] 
@@ -645,10 +643,10 @@ class MultimodalUNet(nn.Module):
             a = audio_cond.squeeze(1) if audio_cond.dim() == 3 else audio_cond
             emb_pert = emb_pert + self.audio_cond_layers(a)   
         
-        if audio_gene_cond is not None:
+        if self.use_gene_cond and audio_gene_cond is not None:
             assert audio_gene_cond.shape[0] == (audio.shape[0])
             g = audio_gene_cond.squeeze(1) if audio_gene_cond.dim() == 3 else audio_gene_cond
-            # emb_pert = emb_pert + self.audio_gene_layers(g)
+            emb_pert = emb_pert + self.audio_gene_layers(g)
 
         audio = audio.type(self.dtype)
         emb_pert = emb_pert.type(self.dtype)

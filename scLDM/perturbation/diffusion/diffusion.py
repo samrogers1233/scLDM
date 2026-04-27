@@ -2,14 +2,14 @@ import torch
 from torch import nn
 from tqdm import tqdm
 import torch.nn.functional as F
-from scduo.scduo_perturbation import configs
+from scLDM.perturbation import configs
 from numpy import e
 import os
 import matplotlib
 import torch.nn.functional as F
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from scduo.scduo_perturbation.ae.autoencoder import *
+from scLDM.perturbation.ae.autoencoder import *
 import sys
 device = configs.DEVICE
 batch_size = configs.BATCH_SIZE
