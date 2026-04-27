@@ -94,4 +94,4 @@ If you use scLDM in your research, please cite the corresponding paper.
 
 ## License
 
-See `LICENSE` (add one if not present).
+Released under the [MIT License](LICENSE).
