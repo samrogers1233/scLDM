@@ -1,0 +1,113 @@
+from typing import Callable, List, Optional
+import torch
+import torch.nn as nn  
+
+def unsqueeze_right(x, num_dims=1):
+    """
+    Unsqueezes the last `num_dims` dimensions of `x`.
+
+    Args:
+        x (torch.Tensor): Input tensor.
+        num_dims (int, optional): Number of dimensions to unsqueeze. Defaults to 1.
+
+    Returns:
+        torch.Tensor: Tensor with unsqueezed dimensions.
+    """
+    return x.view(x.shape + (1,) * num_dims)
+
+def pad_t_like_x(t, x):
+    """Function to reshape the time vector t by the number of dimensions of x.
+
+    Parameters
+    ----------
+    x : Tensor, shape (bs, *dim)
+        represents the source minibatch
+    t : FloatTensor, shape (bs)
+
+    Returns
+    -------
+    t : Tensor, shape (bs, number of x dimensions)
+
+    Example
+    -------
+    x: Tensor (bs, C, W, H)
+    t: Vector (bs)
+    pad_t_like_x(t, x): Tensor (bs, 1, 1, 1)
+    """
+    if isinstance(t, (float, int)):
+        return t
+    return t.reshape(-1, *([1] * (x.dim() - 1)))
+
+def kl_std_normal(mean_squared, var):
+    """
+    Computes Gaussian KL divergence.
+
+    Args:
+        mean_squared (torch.Tensor): Mean squared values.
+        var (torch.Tensor): Variance values.
+
+    Returns:
+        torch.Tensor: Gaussian KL divergence.
+    """
+    return 0.5 * (var + mean_squared - torch.log(var.clamp(min=1e-15)) - 1.0)
+
+
+#vae_mlp
+class MLP(nn.Module):
+    def __init__(
+        self,
+        dims: List[int],
+        norm: bool = False,
+        dropout: bool = False,
+        dropout_p: float = 0.0,
+        activation: Callable = nn.ELU,
+        final_activation: Optional[str] = None,
+        norm_type: str = "batchnorm",
+        out_mult: int = 1,                 
+    ):
+        super(MLP, self).__init__()
+
+        # Attributes 
+        self.dims = dims
+        self.norm = norm
+        self.activation = activation
+
+        # MLP 
+        layers = []
+        for i in range(len(self.dims[:-2])):
+            block = []
+            block.append(torch.nn.Linear(self.dims[i], self.dims[i+1]))
+            if norm: 
+                if norm_type == 'batchnorm':
+                    block.append(torch.nn.BatchNorm1d(self.dims[i+1]))
+                else:
+                    block.append(torch.nn.LayerNorm(self.dims[i+1]))
+            block.append(self.activation())
+            if dropout:
+                block.append(torch.nn.Dropout(dropout_p))
+            
+            layers.append(torch.nn.Sequential(*block))
+        
+        out_dim = self.dims[-1] * out_mult
+        layers.append(nn.Linear(self.dims[-2], out_dim))
+
+
+        # Compile the neural net
+        self.net = torch.nn.Sequential(*layers)
+        
+        if final_activation == "tanh":
+            self.final_activation = torch.nn.Tanh()
+        elif final_activation == "sigmoid":
+            self.final_activation = torch.nn.Sigmoid()
+        elif final_activation is "ReLU":
+            self.final_activation = torch.nn.ReLU()
+        else:
+            self.final_activation = None
+
+    def forward(self, x):
+
+        x = self.net(x)
+        if not self.final_activation:
+            return x
+        else:
+            return self.final_activation(x)

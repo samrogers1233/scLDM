@@ -1,0 +1,12 @@
+defaults:
+  - _self_
+  - checkpoints: default
+  - dataset: covid
+  - early_stopping: default
+  - encoder: default
+  - hparams_search: null
+  - hydra: default
+  - launcher: slurm_tum
+  - logger: default
+  - trainer: default
+  - training_config: default

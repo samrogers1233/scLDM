@@ -1,0 +1,10 @@
+monitor: val/loss
+patience: 20
+mode: min
+min_delta: 1e-3
+verbose: False
+strict: True
+check_finite: True
+stopping_threshold: Null
+divergence_threshold: Null
+check_on_train_epoch_end: True

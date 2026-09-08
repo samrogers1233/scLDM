@@ -1,0 +1,3 @@
+batch_size: 256
+chekpoint_path: path/to/checkpoints
+use_early_stopping: True
